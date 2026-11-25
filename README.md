@@ -1,6 +1,6 @@
 # algo-deca
 
-Auditable student class assignment optimizer in Python using **PuLP + HiGHS** and **convex preference weights**.
+Student class assignment optimizer using **PuLP + HiGHS** and **convex preference weights**.
 
 Every optimization run produces a **UUID-tagged, UTC-timestamped** output folder containing the assignment CSV, a SHA-256-verified JSON audit manifest (with all input hashes and resolved parameters), and a human-readable Markdown report.
 
@@ -81,6 +81,11 @@ solver = "highs"
 ```
 
 > **Scaling from top-5 to top-14 (or any N) choices:** No code changes are needed—simply update `choice_columns` and `rank_weights` in `config.toml` to have matching lengths.
+
+### Why PuLP + HiGHS?
+
+- **PuLP** provides clean, readable algebraic syntax for defining binary assignment variables, preference objectives, and capacity/schedule constraints—making the math easy to inspect, audit, and extend.
+- **HiGHS (`highspy`)** is a fast, modern, open-source MILP solver installed directly as a Python wheel via `uv` (no external system binaries required). Unlike greedy heuristics, it proves **global optimality** for 300+ students in a fraction of a second.
 
 ### Why Convex Weights?
 
