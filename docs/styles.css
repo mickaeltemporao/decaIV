@@ -249,6 +249,10 @@ body {
   margin-top: 10px;
 }
 
+.single-field {
+  margin-top: 10px;
+}
+
 .checkbox-row {
   display: flex;
   align-items: center;
@@ -560,59 +564,4 @@ td.mono {
 .template-note {
   font-size: 0.8rem;
   color: var(--text-muted);
-}
-
-/* CLI CTA */
-.cli-section {
-  margin-top: 24px;
-  background: #0f172a;
-  color: #f8fafc;
-  border-radius: var(--radius);
-  padding: 22px 24px;
-}
-
-.cli-section h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-  color: #ffffff;
-}
-
-.cli-section p {
-  margin: 0 0 14px;
-  color: #cbd5e1;
-  font-size: 0.92rem;
-}
-
-.cli-section pre {
-  margin: 0 0 14px;
-  padding: 14px 16px;
-  background: #1e293b;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: #e2e8f0;
-}
-
-.cli-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.cli-links .btn {
-  background: #1e293b;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-.cli-links .btn:hover {
-  background: #334155;
-}
-
-.cli-links .btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
 }

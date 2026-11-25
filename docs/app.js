@@ -1,10 +1,11 @@
-/* Algo DECA IV - Browser Demo using HiGHS WebAssembly */
+/* Algo DECA IV - Démonstration interactive d'affectation des cours */
 
 const PRESETS = {
   convex: [100, 80, 55, 25, 5],
   linear: [5, 4, 3, 2, 1],
   "top-heavy": [100, 50, 20, 5, 1],
 };
+const DEFAULT_TIE_BREAK_SEED = 42;
 
 let highsInstance = null;
 let defaultStudents = [];
@@ -199,14 +200,13 @@ function getParamsFromUI(overrideCapacities = true) {
   const rankWeights = [1, 2, 3, 4, 5].map((i) => parseFloat(document.getElementById(`w${i}`).value));
   const minCap = parseInt(document.getElementById("min-cap").value, 10);
   const maxCap = parseInt(document.getElementById("max-cap").value, 10);
-  const seed = parseInt(document.getElementById("seed").value, 10);
   const unrankedPenalty = parseFloat(document.getElementById("unranked-penalty").value);
   const allowUnranked = document.getElementById("allow-unranked").checked;
   return {
     rankWeights,
     minCap,
     maxCap,
-    seed: Number.isNaN(seed) ? 42 : seed,
+    seed: DEFAULT_TIE_BREAK_SEED,
     unrankedPenalty: Number.isNaN(unrankedPenalty) ? -500 : unrankedPenalty,
     allowUnranked,
     overrideCapacities,
@@ -238,7 +238,7 @@ function runOptimization() {
 
   const params = getParamsFromUI(true);
   if (params.minCap > params.maxCap) {
-    showBanner("error", `Invalid seat limits: min (${params.minCap}) cannot exceed max (${params.maxCap}).`);
+    showBanner("error", `Capacités invalides : le minimum (${params.minCap}) ne peut pas dépasser le maximum (${params.maxCap}).`);
     return;
   }
 
@@ -249,17 +249,17 @@ function runOptimization() {
   try {
     solution = highsInstance.solve(lp);
   } catch (err) {
-    showBanner("error", `Solver error: ${err.message}`);
+    showBanner("error", `Erreur lors du calcul : ${err.message}`);
     return;
   }
   const elapsedMs = performance.now() - t0;
 
   if (!solution || solution.Status !== "Optimal") {
-    document.getElementById("kpi-status").textContent = solution ? solution.Status : "Failed";
-    document.getElementById("kpi-time").textContent = `${elapsedMs.toFixed(1)} ms`;
+    document.getElementById("kpi-status").textContent = "Impossible";
+    document.getElementById("kpi-time").textContent = `${elapsedMs.toFixed(0)} ms`;
     showBanner(
       "error",
-      `No feasible allocation found (status: ${solution ? solution.Status : "Unknown"}). Try increasing max seats per course, lowering min seats, or enabling unranked fallback.`
+      "Aucune affectation possible avec ces paramètres. Essayez d'augmenter le maximum de places par cours, de baisser le minimum ou d'autoriser les affectations hors vœux."
     );
     return;
   }
@@ -337,13 +337,13 @@ function renderResults(data) {
   const top3 = top2 + data.rankCounts["3"];
 
   document.getElementById("kpi-status").textContent = "Optimal";
-  document.getElementById("kpi-time").textContent = `${data.elapsedMs.toFixed(0)} ms (HiGHS WASM)`;
+  document.getElementById("kpi-time").textContent = `Calculé en ${data.elapsedMs.toFixed(0)} ms`;
   document.getElementById("kpi-c1").textContent = `${((c1 / n) * 100).toFixed(1)}%`;
-  document.getElementById("kpi-c1-count").textContent = `${c1} of ${n} students`;
+  document.getElementById("kpi-c1-count").textContent = `${c1} sur ${n} étudiants`;
   document.getElementById("kpi-top2").textContent = `${((top2 / n) * 100).toFixed(1)}%`;
   document.getElementById("kpi-top3").textContent = `${((top3 / n) * 100).toFixed(1)}%`;
   document.getElementById("kpi-score").textContent = data.totalScore.toFixed(0);
-  document.getElementById("kpi-unranked").textContent = `${data.rankCounts.UNRANKED} unranked`;
+  document.getElementById("kpi-unranked").textContent = `${data.rankCounts.UNRANKED} hors vœux`;
 
   // Rank bars
   const rankBars = document.getElementById("rank-bars");
@@ -354,7 +354,7 @@ function renderResults(data) {
     const row = document.createElement("div");
     row.className = "bar-row";
     row.innerHTML = `
-      <div class="bar-label">${rk === "UNRANKED" ? "Unranked" : `Choice ${rk}`}</div>
+      <div class="bar-label">${rk === "UNRANKED" ? "Hors vœux" : `Vœu ${rk}`}</div>
       <div class="bar-track"><div class="bar-fill ${rk === "UNRANKED" ? "unranked" : ""}" style="width: ${pct.toFixed(1)}%"></div></div>
       <div class="bar-stat">${count} (${pct.toFixed(1)}%)</div>
     `;
@@ -378,7 +378,7 @@ function renderResults(data) {
         </div>
       </td>
       <td class="num">${cs.first_choice_demand}</td>
-      <td>${cs.is_bottleneck ? '<span class="pill bottleneck">Bottleneck</span>' : '<span class="pill ok">Balanced</span>'}</td>
+      <td>${cs.is_bottleneck ? '<span class="pill bottleneck">Saturé</span>' : '<span class="pill ok">Équilibré</span>'}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -390,7 +390,7 @@ function renderResults(data) {
   data.assignments.forEach((a) => {
     const opt = document.createElement("option");
     opt.value = a.student_id;
-    opt.textContent = `${a.student_id} -> ${a.assigned_class} (${a.assigned_rank ? `Choice ${a.assigned_rank}` : "Unranked"})`;
+    opt.textContent = `${a.student_id} -> ${a.assigned_class} (${a.assigned_rank ? `Vœu ${a.assigned_rank}` : "Hors vœux"})`;
     select.appendChild(opt);
   });
 
@@ -412,11 +412,11 @@ function renderStudentAudit(studentId) {
   if (!rec) return;
 
   const summaryEl = document.getElementById("student-audit-summary");
-  const rankLabel = rec.assigned_rank ? `Choice ${rec.assigned_rank}` : "Unranked";
+  const rankLabel = rec.assigned_rank ? `Vœu ${rec.assigned_rank}` : "Hors vœux";
   summaryEl.innerHTML = `
-    <strong>${rec.student_id}</strong> was placed in <strong>${rec.assigned_class}</strong>
-    (<strong>${rankLabel}</strong>, score: <code>${rec.preference_score}</code>).<br />
-    Submitted preferences: <code>${rec.choices.join(" > ")}</code>
+    <strong>${rec.student_id}</strong> a été affecté au cours <strong>${rec.assigned_class}</strong>
+    (<strong>${rankLabel}</strong>, score : <code>${rec.preference_score}</code>).<br />
+    Vœux exprimés : <code>${rec.choices.join(" > ")}</code>
   `;
 
   const missedWrap = document.getElementById("student-missed-wrap");
@@ -447,7 +447,7 @@ function renderStudentAudit(studentId) {
       <td class="num">${targetRank}</td>
       <td class="mono">${cid}</td>
       <td class="num">${cs.assigned_count}/${cs.max_capacity}</td>
-      <td>${isFull ? '<span class="pill bottleneck">YES</span>' : "NO"}</td>
+      <td>${isFull ? '<span class="pill bottleneck">OUI</span>' : "NON"}</td>
       <td class="num">${cs.first_choice_demand}</td>
       <td class="num">${higherOrEqual}</td>
     `;
@@ -487,7 +487,7 @@ function renderInputPreviews() {
 
   if (stuTbody) {
     const sampleStu = activeStudents.slice(0, 5);
-    stuCount.textContent = `Showing ${sampleStu.length} of ${activeStudents.length} rows`;
+    stuCount.textContent = `Aperçu : ${sampleStu.length} sur ${activeStudents.length} lignes`;
     stuTbody.innerHTML = "";
     sampleStu.forEach((s) => {
       const tr = document.createElement("tr");
@@ -499,7 +499,7 @@ function renderInputPreviews() {
 
   if (clsTbody) {
     const sampleCls = activeClasses.slice(0, 5);
-    clsCount.textContent = `Showing ${sampleCls.length} of ${activeClasses.length} rows`;
+    clsCount.textContent = `Aperçu : ${sampleCls.length} sur ${activeClasses.length} lignes`;
     clsTbody.innerHTML = "";
     sampleCls.forEach((c) => {
       const tr = document.createElement("tr");
@@ -514,7 +514,6 @@ function renderInputPreviews() {
 }
 
 async function init() {
-  const statusEl = document.getElementById("wasm-status");
   try {
     const [stuRes, clsRes, highs] = await Promise.all([
       fetch("./data/students.csv"),
@@ -530,14 +529,10 @@ async function init() {
     activeStudents = defaultStudents;
     activeClasses = defaultClasses;
 
-    statusEl.textContent = "HiGHS WebAssembly Ready";
-    statusEl.classList.add("ok");
     renderInputPreviews();
     runOptimization();
   } catch (err) {
-    statusEl.textContent = "Solver Load Failed";
-    statusEl.classList.add("err");
-    showBanner("error", `Failed to initialize browser solver: ${err.message}`);
+    showBanner("error", `Impossible de charger les données ou le moteur de calcul : ${err.message}`);
   }
 }
 
@@ -551,7 +546,6 @@ document.getElementById("run-btn").addEventListener("click", runOptimization);
 document.getElementById("reset-btn").addEventListener("click", () => {
   document.getElementById("min-cap").value = 10;
   document.getElementById("max-cap").value = 21;
-  document.getElementById("seed").value = 42;
   document.getElementById("unranked-penalty").value = -500;
   document.getElementById("allow-unranked").checked = true;
   setPreset("convex");
