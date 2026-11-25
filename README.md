@@ -11,7 +11,8 @@ Every run produces a **UUID-tagged, UTC-timestamped** output folder containing t
 Requires [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh` on macOS/Linux).
 
 ```bash
-cd algo-deca
+git clone https://github.com/mickaeltemporao/decaIV.git
+cd decaIV
 uv sync
 uv run deca solve
 ```
