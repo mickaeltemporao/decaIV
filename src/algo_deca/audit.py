@@ -217,7 +217,7 @@ def write_run_artifacts(
             "To audit why a specific student did not receive a higher-ranked choice, run:",
             "",
             "```bash",
-            f"uv run algo-deca explain {run_dir} <STUDENT_ID>",
+            f"uv run deca explain {run_dir} <STUDENT_ID>",
             "```",
             "",
         ]

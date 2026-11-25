@@ -24,7 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-algo-deca = "algo_deca.cli:app"
+deca = "algo_deca.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/algo_deca"]

@@ -17,7 +17,7 @@ from algo_deca.sample_data import generate_sample_dataset
 from algo_deca.solver import solve_assignments
 
 app = typer.Typer(
-    name="algo-deca",
+    name="deca",
     help="Auditable student class assignment optimizer using PuLP + HiGHS.",
     no_args_is_help=True,
 )
@@ -99,7 +99,7 @@ def validate(
             f"Students: [bold]{len(student_list)}[/bold] | "
             f"Classes: [bold]{len(class_list)}[/bold] | "
             f"Seats (min..max): [bold]{total_min}..{total_max}[/bold]",
-            title="algo-deca validate",
+            title="deca validate",
         )
     )
     for w in warnings:
@@ -160,7 +160,7 @@ def solve(
             f"[bold]Run ID:[/bold] {artifacts.run_id}\n"
             f"[bold]Timestamp (UTC):[/bold] {artifacts.timestamp_utc}\n"
             f"[bold]Total Preference Score:[/bold] {result.total_preference_score:.2f}",
-            title="algo-deca solve",
+            title="deca solve",
         )
     )
 

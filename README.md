@@ -1,4 +1,4 @@
-# algo-deca
+# Algo DECA IV
 
 Student class assignment optimizer using **PuLP + HiGHS** and **convex preference weights**.
 
@@ -13,13 +13,13 @@ Every optimization run produces a **UUID-tagged, UTC-timestamped** output folder
 uv sync
 
 # 2. Validate inputs and config.toml
-uv run algo-deca validate
+uv run deca validate
 
 # 3. Run the optimization (writes to outputs/run_<timestamp>_<short_uuid>/)
-uv run algo-deca solve
+uv run deca solve
 
 # 4. Explain why a specific student did not receive a higher-ranked choice
-uv run algo-deca explain outputs/run_<timestamp>_<short_uuid> STU-0001
+uv run deca explain outputs/run_<timestamp>_<short_uuid> STU-0001
 ```
 
 ---
@@ -103,10 +103,10 @@ When multiple assignments achieve the exact same total preference score, `tie_br
 
 | Command | Description |
 | :--- | :--- |
-| `uv run algo-deca validate` | Validate `config.toml`, student rankings, and class capacities. |
-| `uv run algo-deca solve` | Solve to global optimality and write audited artifacts. |
-| `uv run algo-deca explain <run_dir> <student_id>` | Verify CSV SHA-256 integrity and explain why a student missed higher choices. |
-| `uv run algo-deca generate-sample` | Generate a synthetic dataset (default: 300 students, 15 classes, 5 choices). |
+| `uv run deca validate` | Validate `config.toml`, student rankings, and class capacities. |
+| `uv run deca solve` | Solve to global optimality and write audited artifacts. |
+| `uv run deca explain <run_dir> <student_id>` | Verify CSV SHA-256 integrity and explain why a student missed higher choices. |
+| `uv run deca generate-sample` | Generate a synthetic dataset (default: 300 students, 15 classes, 5 choices). |
 
 Common `solve` overrides:
 - `--config / -c`: Path to an alternate TOML config.
@@ -125,4 +125,4 @@ Each `solve` run creates `outputs/run_<YYYYMMDD_HHMMSS>_<short_uuid>/` containin
 2. **`audit_manifest_<stamp>_<short_uuid>.json`**: Records software versions, SHA-256 hashes of all inputs and the output CSV, resolved parameters, solver runtime/status, rank distribution, and class bottleneck metrics.
 3. **`report_<stamp>_<short_uuid>.md`**: Human-readable summary of parameters, fill rates, and bottleneck classes.
 
-To audit a disputed assignment, run `uv run algo-deca explain <run_dir> <student_id>` — it verifies the CSV has not been altered since the run and shows which higher-ranked choices were at capacity and how many assigned students ranked those classes as high or higher.
+To audit a disputed assignment, run `uv run deca explain <run_dir> <student_id>` — it verifies the CSV has not been altered since the run and shows which higher-ranked choices were at capacity and how many assigned students ranked those classes as high or higher.
