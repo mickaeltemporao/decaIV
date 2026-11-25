@@ -1,4 +1,4 @@
-"""algo-deca: Auditable student class assignment optimizer."""
+"""algo-deca: Auditable preference-based course allocation optimizer."""
 
 __version__ = "0.1.0"
 

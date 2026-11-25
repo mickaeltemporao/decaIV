@@ -140,7 +140,7 @@ def write_run_artifacts(
 
     # Build human-readable Markdown audit report
     lines = [
-        f"# Assignment Audit Report (`{short_id}`)",
+        f"# Course Allocation Audit Report (`{short_id}`)",
         "",
         f"- **Run ID (UUID):** `{run_id}`",
         f"- **Timestamp (UTC):** `{timestamp_utc}`",
@@ -212,7 +212,7 @@ def write_run_artifacts(
     lines.extend(
         [
             "",
-            "## Explaining an Individual Assignment",
+            "## Explaining an Individual Placement",
             "",
             "To audit why a specific student did not receive a higher-ranked choice, run:",
             "",
@@ -248,7 +248,7 @@ def _locate_manifest(run_path: Path) -> Path:
 
 
 def explain_student_assignment(run_path: Path, student_id: str) -> dict[str, Any]:
-    """Load an audited run, verify CSV SHA-256 integrity, and explain a student's assignment."""
+    """Load an audited run, verify CSV SHA-256 integrity, and explain a student's placement."""
     manifest_path = _locate_manifest(run_path)
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 

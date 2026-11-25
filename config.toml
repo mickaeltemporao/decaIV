@@ -1,4 +1,4 @@
-# algo-deca configuration
+# algo-deca configuration (preference-based course allocation)
 # Relative paths are resolved relative to the directory containing this config file.
 
 [paths]
@@ -14,11 +14,11 @@ choice_columns = ["choice_1", "choice_2", "choice_3", "choice_4", "choice_5"]
 eligible_classes = "eligible_classes"
 unavailable_slots = "unavailable_slots"
 
-# Column names in the classes file (.csv or .xlsx)
+# Column names in the courses/classes file (.csv or .xlsx)
 class_id = "class_id"
 max_capacity = "max_capacity"
 min_capacity = "min_capacity"
-# Optional time-slot column in the classes file (paired with unavailable_slots):
+# Optional time-slot column in the courses file (paired with unavailable_slots):
 time_slot = "time_slot"
 
 [optimization]
@@ -27,15 +27,15 @@ time_slot = "time_slot"
 # to their 5th choice just to bump two others from 2nd to 1st.
 rank_weights = [100.0, 80.0, 55.0, 25.0, 5.0]
 
-# Global capacity defaults used when max_capacity or min_capacity is omitted/blank
-# in the classes file. Per-class values in the classes file override these defaults.
+# Global seat-limit defaults used when max_capacity or min_capacity is omitted/blank
+# in the courses file. Per-course values in the file override these defaults.
 default_max_capacity = 21
 default_min_capacity = 10
 
-# Whether a student may be assigned to an unranked class if all their choices are full.
+# Whether a student may be placed in an unranked course if all their choices are full.
 allow_unranked = true
 
-# Penalty applied when assigning a student to an unranked class (must be < min(rank_weights)).
+# Penalty applied when placing a student in an unranked course (must be < min(rank_weights)).
 unranked_penalty = -500.0
 
 # Deterministic tie-breaking seed and perturbation magnitude.

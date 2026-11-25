@@ -1,4 +1,4 @@
-"""PuLP + HiGHS Mixed-Integer Linear Programming solver for class assignments."""
+"""PuLP + HiGHS Mixed-Integer Linear Programming solver for course allocation."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ def solve_assignments(
     config: AppConfig,
     warnings: list[str] | None = None,
 ) -> SolveResult:
-    """Solve the capacitated student-to-class assignment problem to global optimality."""
+    """Solve the capacitated preference-based course allocation problem to global optimality."""
     start_time = time.perf_counter()
     opt = config.optimization
     num_ranks = len(config.columns.choice_columns)

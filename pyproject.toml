@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "algo-deca"
 version = "0.1.0"
-description = "Auditable student class assignment optimizer using PuLP + HiGHS with convex preference weights."
+description = "Auditable preference-based course allocation optimizer using PuLP + HiGHS with convex preference weights."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

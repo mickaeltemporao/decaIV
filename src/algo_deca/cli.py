@@ -18,7 +18,7 @@ from algo_deca.solver import solve_assignments
 
 app = typer.Typer(
     name="deca",
-    help="Auditable student class assignment optimizer using PuLP + HiGHS.",
+    help="Preference-based course allocation optimizer (matches students to top-ranked courses).",
     no_args_is_help=True,
 )
 console = Console()
@@ -79,7 +79,7 @@ def validate(
         Path | None, typer.Option("--classes", "-k", help="Override classes CSV/XLSX path.")
     ] = None,
 ) -> None:
-    """Validate configuration, student preferences, and class capacities."""
+    """Validate configuration, student preferences, and course capacities."""
     try:
         cfg, students_path, classes_path, _, _ = _load_effective_config(
             config, students, classes
@@ -128,10 +128,13 @@ def solve(
     ] = None,
     allow_unranked: Annotated[
         bool | None,
-        typer.Option("--allow-unranked/--no-unranked", help="Allow/forbid unranked assignments."),
+        typer.Option(
+            "--allow-unranked/--no-unranked",
+            help="Allow/forbid placing students in unranked courses.",
+        ),
     ] = None,
 ) -> None:
-    """Solve the class assignment optimization and write audited output artifacts."""
+    """Run the course allocation optimizer and write audit artifacts."""
     try:
         cfg, students_path, classes_path, out_dir, cfg_path = _load_effective_config(
             config, students, classes, output_dir, seed, solver, allow_unranked
@@ -208,7 +211,7 @@ def explain(
     ],
     student_id: Annotated[str, typer.Argument(help="Student ID to explain.")],
 ) -> None:
-    """Explain why a specific student received their assignment and verify CSV integrity."""
+    """Explain why a student received their course placement and verify CSV integrity."""
     try:
         info = explain_student_assignment(run_path, student_id)
     except (FileNotFoundError, KeyError, ValueError) as exc:
