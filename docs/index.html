@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Algo DECA IV - Interactive Course Allocation Demo</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Algo DECA IV</h1>
+        <p>Interactive preference-based course allocation demo (300 students, 15 courses, top 5 choices).</p>
+      </div>
+      <div class="header-actions">
+        <span id="wasm-status" class="badge">Loading HiGHS WebAssembly...</span>
+        <a class="btn" href="https://github.com/mickaeltemporao/decaIV" target="_blank" rel="noopener noreferrer">
+          GitHub Repo
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="workspace">
+      <!-- Left Controls Panel -->
+      <aside class="card">
+        <h2>Parameters</h2>
+
+        <h3>Weighting Preset</h3>
+        <div class="preset-row">
+          <button type="button" class="btn btn-sm active-preset" data-preset="convex">Convex (Recommended)</button>
+          <button type="button" class="btn btn-sm" data-preset="linear">Linear</button>
+          <button type="button" class="btn btn-sm" data-preset="top-heavy">Top-Heavy</button>
+        </div>
+
+        <h3>Choice Weights</h3>
+        <div class="weights-grid">
+          <div class="field">
+            <label for="w1">1st</label>
+            <input id="w1" type="number" step="1" value="100" />
+          </div>
+          <div class="field">
+            <label for="w2">2nd</label>
+            <input id="w2" type="number" step="1" value="80" />
+          </div>
+          <div class="field">
+            <label for="w3">3rd</label>
+            <input id="w3" type="number" step="1" value="55" />
+          </div>
+          <div class="field">
+            <label for="w4">4th</label>
+            <input id="w4" type="number" step="1" value="25" />
+          </div>
+          <div class="field">
+            <label for="w5">5th</label>
+            <input id="w5" type="number" step="1" value="5" />
+          </div>
+        </div>
+
+        <h3>Seat Limits & Tie-Breaking</h3>
+        <div class="two-col">
+          <div class="field">
+            <label for="min-cap">Min seats / course</label>
+            <input id="min-cap" type="number" min="0" step="1" value="10" />
+          </div>
+          <div class="field">
+            <label for="max-cap">Max seats / course</label>
+            <input id="max-cap" type="number" min="1" step="1" value="21" />
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="field">
+            <label for="seed">Tie-break seed</label>
+            <input id="seed" type="number" step="1" value="42" />
+          </div>
+          <div class="field">
+            <label for="unranked-penalty">Unranked penalty</label>
+            <input id="unranked-penalty" type="number" step="10" value="-500" />
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input id="allow-unranked" type="checkbox" checked />
+          Allow placing overflow students in unranked courses
+        </label>
+
+        <div class="action-row">
+          <button id="run-btn" type="button" class="btn btn-primary">Run Optimizer</button>
+          <button id="reset-btn" type="button" class="btn">Reset</button>
+        </div>
+
+        <details class="upload-box">
+          <summary>Test with your own CSV files (stays local in browser)</summary>
+          <div class="upload-fields">
+            <div>
+              <strong>Students CSV</strong> (<code>student_id,choice_1..choice_5</code>):
+              <input id="students-upload" type="file" accept=".csv" />
+            </div>
+            <div>
+              <strong>Courses CSV</strong> (<code>class_id,max_capacity,min_capacity</code>):
+              <input id="classes-upload" type="file" accept=".csv" />
+            </div>
+            <button id="use-default-data-btn" type="button" class="btn btn-sm">Restore Default 300-Student Sample</button>
+          </div>
+        </details>
+      </aside>
+
+      <!-- Right Results Dashboard -->
+      <section>
+        <div id="status-banner" class="alert info">
+          Loading sample dataset and HiGHS WebAssembly solver...
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Solver Status</div>
+            <div id="kpi-status" class="kpi-value">-</div>
+            <div id="kpi-time" class="kpi-sub">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">1st Choice</div>
+            <div id="kpi-c1" class="kpi-value">-</div>
+            <div id="kpi-c1-count" class="kpi-sub">-</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Top 2 Choices</div>
+            <div id="kpi-top2" class="kpi-value">-</div>
+            <div class="kpi-sub">Cumulative share</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Top 3 Choices</div>
+            <div id="kpi-top3" class="kpi-value">-</div>
+            <div class="kpi-sub">Cumulative share</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Total Score</div>
+            <div id="kpi-score" class="kpi-value">-</div>
+            <div id="kpi-unranked" class="kpi-sub">-</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Choice Rank Distribution</h2>
+          <div id="rank-bars" class="bar-list"></div>
+          <div class="download-row">
+            <button id="download-csv-btn" type="button" class="btn btn-sm" disabled>Download Assignments CSV</button>
+            <button id="download-json-btn" type="button" class="btn btn-sm" disabled>Download Audit Manifest JSON</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Course Fill & Bottlenecks</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th class="num">Assigned</th>
+                  <th class="num">Min..Max</th>
+                  <th>Fill</th>
+                  <th class="num">1st-Choice Demand</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="courses-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Audit an Individual Student ("Why did they get this course?")</h2>
+          <div class="audit-controls">
+            <div class="field">
+              <label for="student-select">Select Student</label>
+              <select id="student-select"></select>
+            </div>
+          </div>
+          <div id="student-audit-summary" class="audit-summary"></div>
+          <div id="student-missed-wrap" class="table-wrap hidden">
+            <table>
+              <thead>
+                <tr>
+                  <th class="num">Rank</th>
+                  <th>Course</th>
+                  <th class="num">Fill</th>
+                  <th>Full?</th>
+                  <th class="num">1st-Choice Demand</th>
+                  <th class="num">Placed w/ >= Rank</th>
+                </tr>
+              </thead>
+              <tbody id="student-missed-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Input File Templates -->
+    <section class="card templates-section">
+      <h2>Input File Templates (CSV / Excel)</h2>
+      <p class="template-intro">
+        Prepare two files with these column headers. Both <code>.csv</code> and Excel <code>.xlsx</code> work in the Python CLI, and you can test custom <code>.csv</code> files directly in this browser demo using the upload panel above.
+      </p>
+      <div class="templates-grid">
+        <div>
+          <div class="template-header">
+            <h3>Students Preferences (<code>students.csv</code>)</h3>
+            <span id="students-preview-count" class="badge">Showing 5 rows</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>student_id</th>
+                  <th>choice_1</th>
+                  <th>choice_2</th>
+                  <th>choice_3</th>
+                  <th>choice_4</th>
+                  <th>choice_5</th>
+                </tr>
+              </thead>
+              <tbody id="students-preview-tbody"></tbody>
+            </table>
+          </div>
+          <div class="template-footer">
+            <span class="template-note">Optional CLI columns: <code>eligible_classes</code>, <code>unavailable_slots</code>.</span>
+            <a class="btn btn-sm" href="./data/students.csv" download="students_template.csv">Download students.csv</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="template-header">
+            <h3>Courses & Seat Limits (<code>classes.csv</code>)</h3>
+            <span id="classes-preview-count" class="badge">Showing 5 rows</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>class_id</th>
+                  <th class="num">max_capacity</th>
+                  <th class="num">min_capacity</th>
+                </tr>
+              </thead>
+              <tbody id="classes-preview-tbody"></tbody>
+            </table>
+          </div>
+          <div class="template-footer">
+            <span class="template-note">Optional CLI column: <code>time_slot</code> (capacities can also default from <code>config.toml</code>).</span>
+            <a class="btn btn-sm" href="./data/classes.csv" download="classes_template.csv">Download classes.csv</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLI CTA -->
+    <section class="cli-section">
+      <h2>Run on Real Data (CLI & Full Audit Trail)</h2>
+      <p>
+        This page runs a live browser demo on the 300-student sample dataset. For real cohorts (with Excel <code>.xlsx</code> support, schedule eligibility constraints, and SHA-256 tamper verification), clone the repository and run the Python CLI locally:
+      </p>
+      <pre>git clone https://github.com/mickaeltemporao/decaIV.git
+cd decaIV
+uv sync
+uv run deca solve</pre>
+      <p>
+        You can also run <code>uv run deca validate</code> before solving and <code>uv run deca explain outputs/run_&lt;stamp&gt;_&lt;id&gt; &lt;STUDENT_ID&gt;</code> to audit any individual placement.
+      </p>
+      <div class="cli-links">
+        <a class="btn btn-primary" href="https://github.com/mickaeltemporao/decaIV#quick-start" target="_blank" rel="noopener noreferrer">
+          View Quick Start Guide
+        </a>
+        <a class="btn" href="https://github.com/mickaeltemporao/decaIV/blob/main/README.md" target="_blank" rel="noopener noreferrer">
+          Full Documentation (README)
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/highs@1.8.0/build/highs.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

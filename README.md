@@ -4,6 +4,8 @@ Preference-based **course allocation** optimizer that matches students to their 
 
 Every run produces a **UUID-tagged, UTC-timestamped** output folder containing the course placement CSV (`assignments_<stamp>_<short_uuid>.csv`), a SHA-256-verified JSON audit manifest (with all input hashes and resolved parameters), and a human-readable Markdown report.
 
+**Live Browser Demo:** Try it interactively on GitHub Pages at [mickaeltemporao.github.io/decaIV](https://mickaeltemporao.github.io/decaIV/) (runs HiGHS WebAssembly locally in your browser on the 300-student sample dataset). Enable in **Settings > Pages > Deploy from a branch (`main` / `/docs`)**.
+
 ---
 
 ## Quick Start
