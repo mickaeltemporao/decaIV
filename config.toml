@@ -1,0 +1,47 @@
+# algo-deca configuration
+# Relative paths are resolved relative to the directory containing this config file.
+
+[paths]
+students_file = "examples/students.csv"
+classes_file = "examples/classes.csv"
+output_dir = "outputs"
+
+[columns]
+# Column names in the students file (.csv or .xlsx)
+student_id = "student_id"
+choice_columns = ["choice_1", "choice_2", "choice_3", "choice_4", "choice_5"]
+# Optional schedule-eligibility columns in the students file:
+eligible_classes = "eligible_classes"
+unavailable_slots = "unavailable_slots"
+
+# Column names in the classes file (.csv or .xlsx)
+class_id = "class_id"
+max_capacity = "max_capacity"
+min_capacity = "min_capacity"
+# Optional time-slot column in the classes file (paired with unavailable_slots):
+time_slot = "time_slot"
+
+[optimization]
+# Convex preference weights (must match length of choice_columns, non-increasing).
+# Steepening the drop-off between lower ranks discourages dropping one student
+# to their 5th choice just to bump two others from 2nd to 1st.
+rank_weights = [100.0, 80.0, 55.0, 25.0, 5.0]
+
+# Global capacity defaults used when max_capacity or min_capacity is omitted/blank
+# in the classes file. Per-class values in the classes file override these defaults.
+default_max_capacity = 21
+default_min_capacity = 10
+
+# Whether a student may be assigned to an unranked class if all their choices are full.
+allow_unranked = true
+
+# Penalty applied when assigning a student to an unranked class (must be < min(rank_weights)).
+unranked_penalty = -500.0
+
+# Deterministic tie-breaking seed and perturbation magnitude.
+# Ensures identical inputs produce identical results regardless of row order.
+tie_break_seed = 42
+tie_break_epsilon = 1e-5
+
+# MILP solver backend: "highs" (recommended) or "cbc".
+solver = "highs"
