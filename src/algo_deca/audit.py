@@ -154,12 +154,12 @@ def write_run_artifacts(
         "",
         "## File Integrity (SHA-256)",
         "",
-        f"- `assignments_csv`: `{assignments_csv.name}` — `{csv_sha256}`",
-        f"- `students_file`: `{students_path}` — `{students_sha256}`",
-        f"- `classes_file`: `{classes_path}` — `{classes_sha256}`",
+        f"- `assignments_csv`: `{assignments_csv.name}` (`{csv_sha256}`)",
+        f"- `students_file`: `{students_path}` (`{students_sha256}`)",
+        f"- `classes_file`: `{classes_path}` (`{classes_sha256}`)",
     ]
     if config_path and config_sha256:
-        lines.append(f"- `config_file`: `{config_path}` — `{config_sha256}`")
+        lines.append(f"- `config_file`: `{config_path}` (`{config_sha256}`)")
 
     lines.extend(
         [

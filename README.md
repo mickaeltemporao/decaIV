@@ -1,6 +1,6 @@
 # Algo DECA IV
 
-Preference-based **course allocation** optimizer that matches students to their highest-ranked courses while respecting seat limits and schedule constraints—built with **PuLP + HiGHS** and **convex preference weights**.
+Preference-based **course allocation** optimizer that matches students to their highest-ranked courses while respecting seat limits and schedule constraints, built with **PuLP + HiGHS** and **convex preference weights**.
 
 Every run produces a **UUID-tagged, UTC-timestamped** output folder containing the course placement CSV (`assignments_<stamp>_<short_uuid>.csv`), a SHA-256-verified JSON audit manifest (with all input hashes and resolved parameters), and a human-readable Markdown report.
 
@@ -82,7 +82,7 @@ tie_break_epsilon = 1e-5
 solver = "highs"
 ```
 
-> **Scaling from top-5 to top-14 (or any N) choices:** No code changes are needed—simply update `choice_columns` and `rank_weights` in `config.toml` to have matching lengths.
+> **Scaling from top-5 to top-14 (or any N) choices:** No code changes are needed: simply update `choice_columns` and `rank_weights` in `config.toml` to have matching lengths.
 
 ### How It Works
 
@@ -90,7 +90,7 @@ Mathematically, this is a **capacitated course allocation** problem, formulated 
 
 ### Why PuLP + HiGHS?
 
-- **PuLP** provides clean, readable algebraic syntax for defining placement variables, preference objectives, and seat/schedule constraints—making the math easy to inspect, audit, and extend.
+- **PuLP** provides clean, readable algebraic syntax for defining placement variables, preference objectives, and seat/schedule constraints, making the math easy to inspect, audit, and extend.
 - **HiGHS (`highspy`)** is a fast, modern, open-source MILP solver installed directly as a Python wheel via `uv` (no external system binaries required). Unlike greedy heuristics, it proves **global optimality** for 300+ students in a fraction of a second.
 
 ### Why Convex Weights?
@@ -131,4 +131,4 @@ Each `solve` run creates `outputs/run_<YYYYMMDD_HHMMSS>_<short_uuid>/` containin
 2. **`audit_manifest_<stamp>_<short_uuid>.json`**: Records software versions, SHA-256 hashes of all inputs and the output CSV, resolved parameters, solver runtime/status, rank distribution, and course bottleneck metrics.
 3. **`report_<stamp>_<short_uuid>.md`**: Human-readable summary of parameters, fill rates, and bottleneck courses.
 
-To audit a disputed placement, run `uv run deca explain <run_dir> <student_id>` — it verifies the CSV has not been altered since the run and shows which higher-ranked courses were at capacity and how many placed students ranked those courses as high or higher.
+To audit a disputed placement, run `uv run deca explain <run_dir> <student_id>`. It verifies the CSV has not been altered since the run and shows which higher-ranked courses were at capacity and how many placed students ranked those courses as high or higher.
