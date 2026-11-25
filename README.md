@@ -8,42 +8,15 @@ Every run produces a **UUID-tagged, UTC-timestamped** output folder containing t
 
 ## Quick Start
 
-**1. Install `uv`** (if you do not already have it):
+Requires [uv](https://docs.astral.sh/uv/getting-started/installation/) (`curl -LsSf https://astral.sh/uv/install.sh | sh` on macOS/Linux).
 
 ```bash
-# macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-For Windows or other install options, see the [uv installation docs](https://docs.astral.sh/uv/getting-started/installation/).
-
-**2. Open the project folder and install dependencies:**
-
-```bash
-# Clone the repository (or cd into the shared folder)
 cd algo-deca
-
-# Create the virtual environment and install dependencies
 uv sync
-```
-
-**3. Try it out with sample data:**
-
-```bash
-# (Optional) Regenerate sample files (300 students, 15 courses, 5 choices)
-uv run deca generate-sample
-
-# Validate config.toml and input files
-uv run deca validate
-
-# Run the allocation optimizer (outputs to outputs/run_<timestamp>_<short_uuid>/)
 uv run deca solve
-
-# Audit why a specific student did not receive a higher-ranked choice
-uv run deca explain outputs/run_<timestamp>_<short_uuid> STU-0001
 ```
 
-To run on your own data, update `students_file` and `classes_file` in `config.toml` to point to your `.csv` or `.xlsx` files (or pass `--students` and `--classes` to `uv run deca solve`).
+This runs the optimizer on the included sample dataset (`examples/`) and writes the allocation CSV, JSON audit manifest, and Markdown report to `outputs/run_<timestamp>_<short_uuid>/`. See **Configuration** to point to your own `.csv` or `.xlsx` files, and **CLI Reference** for `validate`, `explain`, and `generate-sample`.
 
 ---
 
